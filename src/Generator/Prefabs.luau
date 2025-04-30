@@ -358,6 +358,39 @@ do
 	}
 end
 
+--> Vector16
+do
+	Types.vector16 = {
+		Read = function(Variable: string, Block: Block, _, Components: { string }?)
+			local Prefab: TypePrefab = Types.i16
+			if Components then
+				Prefab = Types[Components[#Components]] or Prefab
+			end
+
+			Prefab.Read("X", Block)
+			Prefab.Read("Y", Block)
+			Prefab.Read("Z", Block)
+			Block:Line(`{Block:Declare(Variable)} = Vector3int16.new(X, Y, Z)`)
+		end,
+		Write = function(Value: string, Block: Block, _, Components: { string }?)
+			local Prefab: TypePrefab = Types.i16
+			if Components then
+				Prefab = Types[Components[#Components]] or Prefab
+			end
+
+			Block:Line(`local Vector = {Value}`)
+			Prefab.Write("Vector.X", Block)
+			Prefab.Write("Vector.Y", Block)
+			Prefab.Write("Vector.Z", Block)
+		end,
+	}
+
+	Primitives.vector16 = {
+		Type = "Vector3int16",
+		Generate = GeneratePrimitivePrefab("Vector3int16", Types.vector16),
+	}
+end
+
 --> Buffer
 do
 	Types.buffer = {
