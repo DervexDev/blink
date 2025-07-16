@@ -1,8 +1,6 @@
 {
   "bundle": {
-    "excludes": [
-      "@lune/**"
-    ],
+    "excludes": ["@lune/**"],
     "modules_identifier": "__DARKLUA_BUNDLE_MODULES",
     "require_mode": {
       "name": "path",
@@ -26,7 +24,7 @@
     {
       "identifier": "VERSION",
       "rule": "inject_global_value",
-      "value": "0.17.0"
+      "value": "4.20.0"
     }
   ]
 }

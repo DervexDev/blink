@@ -297,7 +297,7 @@ do
 				return
 			end
 
-			local Upper = Range and Range.Max or (2 ^ 16 - 1)
+			local Upper = Range and Range.Max or (2 ^ 32 - 1)
 			local LengthType = GetTypeToUse(Upper)
 
 			LengthType.Read("Length", Block)
@@ -309,7 +309,7 @@ do
 				return
 			end
 
-			local Upper = Range and Range.Max or (2 ^ 16 - 1)
+			local Upper = Range and Range.Max or (2 ^ 32 - 1)
 			local LengthType = GetTypeToUse(Upper)
 
 			Block:Line(`local Length = #{Value}`)
