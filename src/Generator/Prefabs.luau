@@ -301,7 +301,7 @@ do
 				return
 			end
 
-			local Upper = Range and Range.Max or (2 ^ 16 - 1)
+			local Upper = Range and Range.Max or (2 ^ 32 - 1)
 			local LengthType = GetTypeToUse(Upper)
 
 			LengthType.Read("Length", Block)
@@ -313,7 +313,7 @@ do
 				return
 			end
 
-			local Upper = Range and Range.Max or (2 ^ 16 - 1)
+			local Upper = Range and Range.Max or (2 ^ 32 - 1)
 			local LengthType = GetTypeToUse(Upper)
 
 			Block:Line(`local Length = #{Value}`)
@@ -359,6 +359,39 @@ do
 	Primitives.vector = {
 		Type = "Vector3",
 		Generate = GeneratePrimitivePrefab("Vector3", Types.vector, Asserts.vector),
+	}
+end
+
+--> Vector16
+do
+	Types.vector16 = {
+		Read = function(Variable: string, Block: Block, _, Components: { string }?)
+			local Prefab: TypePrefab = Types.i16
+			if Components then
+				Prefab = Types[Components[#Components]] or Prefab
+			end
+
+			Prefab.Read("X", Block)
+			Prefab.Read("Y", Block)
+			Prefab.Read("Z", Block)
+			Block:Line(`{Block:Declare(Variable)} = Vector3int16.new(X, Y, Z)`)
+		end,
+		Write = function(Value: string, Block: Block, _, Components: { string }?)
+			local Prefab: TypePrefab = Types.i16
+			if Components then
+				Prefab = Types[Components[#Components]] or Prefab
+			end
+
+			Block:Line(`local Vector = {Value}`)
+			Prefab.Write("Vector.X", Block)
+			Prefab.Write("Vector.Y", Block)
+			Prefab.Write("Vector.Z", Block)
+		end,
+	}
+
+	Primitives.vector16 = {
+		Type = "Vector3int16",
+		Generate = GeneratePrimitivePrefab("Vector3int16", Types.vector16),
 	}
 end
 

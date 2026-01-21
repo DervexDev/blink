@@ -142,6 +142,12 @@ local Primitives: { [string]: Primitive } = {
 		AllowsOptional = true,
 		AllowedComponents = 1,
 	},
+	vector16 = {
+		Component = false,
+		AllowsRange = false,
+		AllowsOptional = true,
+		AllowedComponents = 0,
+	},
 	buffer = {
 		Bounds = NumberRange.new(0, 4294967295),
 		Integer = true,
