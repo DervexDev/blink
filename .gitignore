@@ -24,3 +24,5 @@ sourcemap.json
 *.rbxl
 *.rbxl.lock
 test/Sources/Issue.blink
+
+.DS_Store

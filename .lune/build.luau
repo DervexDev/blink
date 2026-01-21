@@ -19,7 +19,13 @@ local PESDE_RELEASE_PATH = `{RELEASE_DIR}/blink_pesde.luau`
 local BUNDLE_CONFIG = "build/.darklua.json"
 local PLUGIN_ROJO_CONFIG = "build/plugin.project.json"
 
-local function build_executable(platform: Platforms, arch: Archs)
+local function bundle_cli()
+	local bundle_result = process.exec("darklua", { "process", "--config", BUNDLE_CONFIG, CLI_PATH, BUNDLE_PATH })
+	assert(bundle_result.ok, bundle_result.stderr)
+	log("Bundled CLI source code")
+end
+
+local function build_executable(platform: Platforms, arch: Archs, only_exe: boolean?)
 	local target = `{platform}-{arch}`
 	local exe_name = `{EXE_NAME}{platform == "windows" and ".exe" or ""}`
 	local exe_path = `{RELEASE_DIR}/{exe_name}`
@@ -32,6 +38,12 @@ local function build_executable(platform: Platforms, arch: Archs)
 		target,
 	}, { stdio = "forward" })
 	assert(build_result.ok, build_result.stderr)
+
+	log(`Built executable for {target}`)
+
+	if only_exe then
+		return
+	end
 
 	local archive_result: process.ExecResult
 	if platform == "windows" then
@@ -53,9 +65,9 @@ local function build_executable(platform: Platforms, arch: Archs)
 	end
 
 	assert(archive_result.ok, archive_result.stderr)
-
 	fs.removeFile(exe_path)
-	log(`Built executable for {target}`)
+
+	log(`Built archive for {target}`)
 end
 
 local function build_pesde()
@@ -66,17 +78,11 @@ local function build_pesde()
 end
 
 local function build_executables()
-	local bundle_result = process.exec("darklua", { "process", "--config", BUNDLE_CONFIG, CLI_PATH, BUNDLE_PATH })
-	assert(bundle_result.ok, bundle_result.stderr)
-	log("Bundled CLI source code")
-
 	build_executable("macos", "x86_64")
 	build_executable("macos", "aarch64")
 	build_executable("linux", "x86_64")
 	build_executable("linux", "aarch64")
 	build_executable("windows", "x86_64")
-
-	fs.removeFile(BUNDLE_PATH)
 end
 
 local function build_studio_plugin()
@@ -117,9 +123,18 @@ do
 end
 
 local start = os.clock()
-build_pesde()
-build_executables()
-build_studio_plugin()
+local platform = process.args[1]
+local arch = process.args[2]
 
-local elapsed = (os.clock() - start)
-print(string.format("Finished build in %.2f seconds", elapsed))
+bundle_cli()
+
+if type(platform) == "string" and type(arch) == "string" then
+	build_executable(platform :: Platforms, arch :: Archs, true)
+else
+	build_pesde()
+	build_executables()
+	build_studio_plugin()
+end
+
+fs.removeFile(BUNDLE_PATH)
+print(string.format("Finished build in %.2f seconds", (os.clock() - start)))
