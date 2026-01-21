@@ -4,7 +4,13 @@ local RunService = game:GetService("RunService")
 
 -- SPLIT --
 if not RunService:IsServer() then
-    error("Server network module can only be required from the server.")
+    return setmetatable({}, {
+        __index = function()
+            return function()
+                error("Server network module can only be used from the server.")
+            end
+        end
+    }) :: BLINK_EVENTS_SYMBOL
 end
 
 local Reliable: RemoteEvent = ReplicatedStorage:FindFirstChild(BASE_EVENT_NAME .. "_RELIABLE_REMOTE") :: RemoteEvent

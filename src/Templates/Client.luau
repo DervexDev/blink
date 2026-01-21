@@ -3,7 +3,13 @@ local RunService = game:GetService("RunService")
 
 -- SPLIT --
 if not RunService:IsClient() then
-    error("Client network module can only be required from the client.")
+    return setmetatable({}, {
+        __index = function()
+            return function()
+				error("Client network module can only be used from the client.")
+            end
+        end
+    }) :: BLINK_EVENTS_SYMBOL
 end
 
 local Reliable: RemoteEvent = ReplicatedStorage:WaitForChild(BASE_EVENT_NAME .. "_RELIABLE_REMOTE") :: RemoteEvent
