@@ -39,8 +39,8 @@ export type Block = typeof(setmetatable(
 	Block
 ))
 
-function Block.new<Parent>(Parent: Block?, Unique: string?): Block
-	local Indent = (Parent and Parent.Indent + 1 or 1)
+function Block.new<Parent>(Parent: Block?, Unique: string?, Indent: number?): Block
+	local Indent = Indent or (Parent and Parent.Indent + 1 or 1)
 	return setmetatable({
 		Unique = Unique or DEFAULT_UNIQUE,
 		Parent = Parent,
@@ -313,16 +313,23 @@ local Connection = {}
 Connection.__index = Connection
 setmetatable(Connection, Block)
 
-function Connection.new(Signal: string, Arguments: string): Block
-	local Block = Block.new()
+function Connection.new(Signal: string, Arguments: string, Parent: Block?): Block
+	local Block = Block.new(Parent)
 	setmetatable(Block, Connection)
 	Block:Advance(1)
-	Block:Line(`{Signal}:Connect(function({Arguments})`, 0)
+	Block:Line(`{Signal}:Connect(function({Arguments})`, Block.Indent - 1)
 	return Block
 end
 
 function Connection.End(self: Block, Return: string?): Block
-	self:Line("end)", 0)
+	self:Line("end)", self.Indent - 1)
+
+	local Parent = self.Parent
+	if Parent then
+		Parent:Lines(self.Content)
+		return Parent
+	end
+
 	return self
 end
 

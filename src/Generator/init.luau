@@ -1216,9 +1216,17 @@ function Generator.Generate(FileContext: Context, AbstractSyntaxTree: Parser.Bod
 	--> Setup remote events
 	local Signal = Context == "Client" and "OnClientEvent" or "OnServerEvent"
 	local Arguments = (Context == "Server" and "Player: Player, " or "") .. "Buffer: buffer, Instances: {Instance}"
+	local Attribute = Context .. "Connected"
 
-	Reliables = Blocks.Connection(`Reliable.{Signal}`, Arguments)
-	Unreliables = Blocks.Connection(`Unreliable.{Signal}`, Arguments)
+	Reliables = Blocks.Block(nil, nil, 0)
+		:Compare(`Reliable:GetAttribute("{Attribute}")`, "true", "Not")
+		:Line(`Reliable:SetAttribute("{Attribute}", true)`)
+	Reliables = Blocks.Connection(`Reliable.{Signal}`, Arguments, Reliables)
+
+	Unreliables = Blocks.Block(nil, nil, 0)
+		:Compare(`Unreliable:GetAttribute("{Attribute}")`, "true", "Not")
+		:Line(`Unreliable:SetAttribute("{Attribute}", true)`)
+	Unreliables = Blocks.Connection(`Unreliable.{Signal}`, Arguments, Unreliables)
 
 	Reliables:Lines(EVENT_BODY, 1)
 	Unreliables:Lines(EVENT_BODY, 1)
@@ -1264,8 +1272,8 @@ function Generator.Generate(FileContext: Context, AbstractSyntaxTree: Parser.Bod
 		Unreliables = Unreliables:End()
 	end
 
-	Reliables = Reliables:End():End()
-	Unreliables = Unreliables:End():End()
+	Reliables = Reliables:End():End():End()
+	Unreliables = Unreliables:End():End():End()
 
 	Noop.Push(`\})`, 0, 1)
 	Noop.Push(`return Returns :: {EVENTS_TYPE}`, 0, 1)
