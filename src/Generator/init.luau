@@ -735,8 +735,13 @@ function Declarations.Function(Declaration: Parser.Function)
 			.Block()
 			:Compare("Calls[InvocationIdentifier]", "nil", "Not")
 			--> Fail instead of closing/cancelling the thread
-			:Line("Invocations -= 1")
-			:Line('error("More than 256 calls are awaiting a response, this packet has been dropped.")')
+			:Line(
+				"task.cancel(Calls[InvocationIdentifier] :: any)"
+			)
+			:Line("Calls[InvocationIdentifier] = nil")
+			:Line(
+				"warn(`More than 256 calls are awaiting a response, packet {InvocationIdentifier} has been dropped.`)"
+			)
 			:End()
 			.Content
 
